@@ -175,7 +175,7 @@ RSpec.shared_examples "Cookbook Update" do
 
       end # it adding all new checksums should succeed
 
-      it "should return url when adding checksums (if ruby endpoint)" do
+      it "should return url when adding checksums" do
         payload = new_cookbook(cookbook_name, cookbook_version)
         payload["files"] = [{"name" => "name1", "path" => "path/name1",
                               "checksum" => checksums[0],
@@ -192,18 +192,19 @@ RSpec.shared_examples "Cookbook Update" do
                                :body_exact => payload
                              })
         end
-
+        # TODO original description indicated ruby returned URI, and also b ody_exact was commented out below.
+        # Look into it ...
         # verify change happened
         # TODO make this match on body when URLs are parsable
         get(api_url("/#{cookbook_url_base}/#{cookbook_name}/#{cookbook_version}"),
             admin_user) do |response|
           response.
             should look_like({
-                               :status => 200
-                              # :body_exact => payload
+                               :status => 200,
+                               :body_exact => payload
                              })
         end
-      end # it should return url when adding checksums (if ruby endpoint)
+      end
 
       it "adding invalid checksum should fail", :validation do
         payload = new_cookbook(cookbook_name, cookbook_version)

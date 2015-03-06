@@ -375,28 +375,11 @@ module Pedant
     end
 
     def associate_user_with_org(orgname, user)
-      # TODO under ruby, we need to use the old invite/accept method,
-      # while under erchef we will need to use the new POST method.
-      payload = { "user" => user.name }
-      # TODO under erlang, we now support superuser direct POST of { username: "user" } to /organizations/X/users
-      # which means we don't need to do the multi-part create-and-accept process.
-      association_requests_url = "#{@server}/organizations/#{orgname}/association_requests"
-      r = post("#{association_requests_url}",  superuser, :payload => payload)
-      if r.code == 201 # Created
-        association_id = parse(r)["uri"].split("/").last
-        r = put("#{@server}/users/#{user.name}/association_requests/#{association_id}", user, :payload => { "response" => "accept" })
-        if r.code != 200
-          raise "Bad response #{r.code} from PUT /users/#{user.name}/association_requests/#{association_id}: #{r}"
-        end
-        # Check that the user was really added, because we're paranoid like that.
-        r = get("#{@server}/organizations/#{orgname}/users", superuser)
-        if r.code != 200 || !parse(r).any? { |u| u['user']['username'] == user.name }
-          raise "Organization invite process did not work for #{orgname} + #{user.name}!  Response: #{r}"
-        end
-      elsif r.code == 409 && parse(r)["error"] == "The association already exists."
+      r = post("#{@server}/organizations/#{orgname}/users", superuser, :payload => { "username" => user.name })
+      if r.code == 201 && r.code == 409 && parse(r)["error"] == "The association already exists."
         # No problem!
       else
-        raise "Bad response #{r.code} from POST /organizations/#{orgname}/association_requests: #{r}"
+        raise "Bad response #{r.code} from POST /organizations/#{orgname}/users w/ { 'username' : '#{user.name}'}: #{r}"
       end
     end
 

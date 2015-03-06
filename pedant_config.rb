@@ -163,16 +163,3 @@ requestors({
              }
            })
 
-
-
-
-# To facilitate testing as we transition from Ruby to Erlang endpoint
-# implementations, you can specify in your configuration which
-# implementation for each endpoint is currently active on the system
-# under test.  Tests should be written to fork on this value if
-# necessary.  A common reason is to take into account different error
-# message formatting between the two implementations.
-#
-ruby_users_endpoint? false
-ruby_org_assoc? false
-ruby_org_acl_endpoint? false
